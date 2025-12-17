@@ -3,869 +3,343 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Indian Streets - Open World Action Game</title>
+    <title>Indian Streets - GTA Game</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Arial', sans-serif;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-            color: white;
-            overflow-x: hidden;
-        }
-
-        .game-container {
-            position: relative;
-            width: 100%;
-            height: 100vh;
-            overflow: hidden;
-        }
-
-        #gameCanvas {
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(180deg, #87CEEB 0%, #98D8C8 50%, #6B8E23 100%);
-            display: block;
-        }
-
-        .hud {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            padding: 20px;
-            pointer-events: none;
-        }
-
-        .hud-top {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-        }
-
-        .stats {
-            background: rgba(0, 0, 0, 0.7);
-            padding: 15px;
-            border-radius: 10px;
-            backdrop-filter: blur(10px);
-        }
-
-        .stat-bar {
-            margin: 8px 0;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .bar {
-            width: 150px;
-            height: 20px;
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 10px;
-            overflow: hidden;
-        }
-
-        .bar-fill {
-            height: 100%;
-            transition: width 0.3s;
-        }
-
-        .health-bar { background: #ff4444; }
-        .armor-bar { background: #4444ff; }
-        .stamina-bar { background: #44ff44; }
-
-        .minimap {
-            width: 200px;
-            height: 200px;
-            background: rgba(0, 0, 0, 0.8);
-            border: 3px solid #ff6600;
-            border-radius: 10px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .player-dot {
-            position: absolute;
-            width: 10px;
-            height: 10px;
-            background: #ff0000;
-            border-radius: 50%;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            box-shadow: 0 0 10px #ff0000;
-        }
-
-        .controls {
-            position: absolute;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            display: flex;
-            gap: 20px;
-            pointer-events: all;
-        }
-
-        .control-btn {
-            width: 60px;
-            height: 60px;
-            background: rgba(255, 102, 0, 0.8);
-            border: 3px solid #fff;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            cursor: pointer;
-            transition: all 0.3s;
-            user-select: none;
-        }
-
-        .control-btn:active {
-            transform: scale(0.9);
-            background: rgba(255, 102, 0, 1);
-        }
-
-        .cheat-panel {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: rgba(0, 0, 0, 0.95);
-            padding: 30px;
-            border-radius: 15px;
-            border: 3px solid #ff6600;
-            display: none;
-            pointer-events: all;
-            max-width: 500px;
-            width: 90%;
-            max-height: 80vh;
-            overflow-y: auto;
-        }
-
-        .cheat-panel.active {
-            display: block;
-        }
-
-        .cheat-input {
-            width: 100%;
-            padding: 15px;
-            background: rgba(255, 255, 255, 0.1);
-            border: 2px solid #ff6600;
-            border-radius: 10px;
-            color: white;
-            font-size: 16px;
-            margin-bottom: 20px;
-        }
-
-        .cheat-list {
-            display: grid;
-            gap: 10px;
-        }
-
-        .cheat-item {
-            background: rgba(255, 102, 0, 0.2);
-            padding: 12px;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.3s;
-            border: 2px solid transparent;
-        }
-
-        .cheat-item:hover {
-            background: rgba(255, 102, 0, 0.4);
-            border-color: #ff6600;
-        }
-
-        .cheat-code {
-            color: #ff6600;
-            font-weight: bold;
-            font-family: monospace;
-        }
-
-        .menu {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.95);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            pointer-events: all;
-        }
-
-        .menu.hidden {
-            display: none;
-        }
-
-        .game-title {
-            font-size: 64px;
-            font-weight: bold;
-            background: linear-gradient(45deg, #ff6600, #ff9933, #138808);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-bottom: 20px;
-            text-shadow: 0 0 30px rgba(255, 102, 0, 0.5);
-        }
-
-        .game-subtitle {
-            font-size: 24px;
-            color: #ff6600;
-            margin-bottom: 40px;
-        }
-
-        .menu-btn {
-            padding: 15px 40px;
-            margin: 10px;
-            background: linear-gradient(45deg, #ff6600, #ff9933);
-            border: none;
-            border-radius: 10px;
-            color: white;
-            font-size: 20px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s;
-            min-width: 250px;
-        }
-
-        .menu-btn:hover {
-            transform: scale(1.05);
-            box-shadow: 0 0 20px rgba(255, 102, 0, 0.8);
-        }
-
-        .vehicle-selector {
-            position: absolute;
-            bottom: 100px;
-            right: 20px;
-            background: rgba(0, 0, 0, 0.8);
-            padding: 15px;
-            border-radius: 10px;
-            pointer-events: all;
-        }
-
-        .vehicle-btn {
-            display: block;
-            padding: 10px 20px;
-            margin: 5px 0;
-            background: rgba(255, 102, 0, 0.6);
-            border: 2px solid #ff6600;
-            border-radius: 8px;
-            color: white;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .vehicle-btn:hover {
-            background: rgba(255, 102, 0, 0.9);
-        }
-
-        .notification {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: rgba(255, 102, 0, 0.95);
-            padding: 20px 40px;
-            border-radius: 10px;
-            font-size: 24px;
-            font-weight: bold;
-            display: none;
-            pointer-events: none;
-            animation: fadeInOut 2s;
-        }
-
-        @keyframes fadeInOut {
-            0%, 100% { opacity: 0; }
-            50% { opacity: 1; }
-        }
-
-        .multiplayer-panel {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            background: rgba(0, 0, 0, 0.8);
-            padding: 15px;
-            border-radius: 10px;
-            pointer-events: all;
-            max-width: 300px;
-        }
-
-        .player-list {
-            margin-top: 10px;
-        }
-
-        .player-item {
-            padding: 8px;
-            background: rgba(255, 102, 0, 0.3);
-            margin: 5px 0;
-            border-radius: 5px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .voice-btn {
-            padding: 5px 10px;
-            background: #44ff44;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 12px;
-        }
-
-        .voice-btn.active {
-            background: #ff4444;
-        }
-
-        .chat-box {
-            position: absolute;
-            bottom: 100px;
-            left: 20px;
-            width: 350px;
-            background: rgba(0, 0, 0, 0.8);
-            border-radius: 10px;
-            padding: 10px;
-            pointer-events: all;
-        }
-
-        .chat-messages {
-            height: 200px;
-            overflow-y: auto;
-            margin-bottom: 10px;
-            padding: 10px;
-        }
-
-        .chat-message {
-            margin: 5px 0;
-            padding: 5px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 5px;
-        }
-
-        .chat-input {
-            width: 100%;
-            padding: 10px;
-            background: rgba(255, 255, 255, 0.1);
-            border: 2px solid #ff6600;
-            border-radius: 5px;
-            color: white;
-        }
-
-        .mission-panel {
-            position: absolute;
-            left: 20px;
-            top: 250px;
-            background: rgba(0, 0, 0, 0.8);
-            padding: 15px;
-            border-radius: 10px;
-            max-width: 300px;
-        }
-
-        .mission-item {
-            padding: 10px;
-            margin: 5px 0;
-            background: rgba(255, 102, 0, 0.3);
-            border-radius: 5px;
-            border-left: 4px solid #ff6600;
-        }
-
-        @media (max-width: 768px) {
-            .game-title { font-size: 36px; }
-            .game-subtitle { font-size: 18px; }
-            .menu-btn { font-size: 16px; min-width: 200px; }
-            .minimap { width: 150px; height: 150px; }
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial; background: #000; color: #fff; overflow: hidden; }
+        
+        #gameCanvas { display: block; background: #87CEEB; }
+        
+        .menu { position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+                background: linear-gradient(135deg, #1a1a2e, #16213e); 
+                display: flex; flex-direction: column; align-items: center; 
+                justify-content: center; z-index: 1000; }
+        .menu.hidden { display: none; }
+        
+        .title { font-size: 60px; font-weight: bold; 
+                 background: linear-gradient(45deg, #ff6600, #ff9933, #138808);
+                 -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+                 margin-bottom: 20px; }
+        
+        .btn { padding: 15px 40px; margin: 10px; 
+               background: linear-gradient(45deg, #ff6600, #ff9933);
+               border: none; border-radius: 10px; color: #fff; 
+               font-size: 20px; font-weight: bold; cursor: pointer;
+               min-width: 280px; transition: all 0.3s; }
+        .btn:hover { transform: scale(1.05); }
+        
+        .hud { position: fixed; top: 20px; left: 20px; 
+               background: rgba(0,0,0,0.8); padding: 15px; 
+               border-radius: 10px; border: 2px solid #ff6600; 
+               display: none; z-index: 100; }
+        
+        .bar { width: 150px; height: 20px; background: rgba(255,255,255,0.2);
+               border-radius: 10px; overflow: hidden; margin: 5px 0; }
+        .bar-fill { height: 100%; transition: width 0.3s; }
+        .health { background: #ff4444; }
+        .armor { background: #4444ff; }
+        
+        .controls { position: fixed; bottom: 20px; left: 50%; 
+                    transform: translateX(-50%); display: none; 
+                    gap: 10px; z-index: 100; }
+        .control-btn { width: 60px; height: 60px; 
+                       background: rgba(255,102,0,0.9); 
+                       border: 3px solid #fff; border-radius: 50%;
+                       font-size: 24px; cursor: pointer; 
+                       display: flex; align-items: center; 
+                       justify-content: center; }
+        .control-btn:active { transform: scale(0.9); }
+        
+        .cheat-panel { position: fixed; top: 50%; left: 50%; 
+                       transform: translate(-50%, -50%);
+                       background: rgba(0,0,0,0.95); padding: 30px;
+                       border-radius: 15px; border: 3px solid #ff6600;
+                       display: none; z-index: 200; max-width: 90%; 
+                       max-height: 80vh; overflow-y: auto; }
+        .cheat-panel.active { display: block; }
+        
+        .cheat-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+                      gap: 10px; margin-top: 15px; }
+        .cheat-item { background: rgba(255,102,0,0.2); padding: 12px;
+                      border-radius: 8px; cursor: pointer; 
+                      border: 2px solid transparent; }
+        .cheat-item:hover { background: rgba(255,102,0,0.4); 
+                            border-color: #ff6600; }
+        .cheat-code { color: #ff6600; font-weight: bold; 
+                      font-family: monospace; font-size: 16px; }
+        
+        .notification { position: fixed; top: 50%; left: 50%;
+                        transform: translate(-50%, -50%);
+                        background: rgba(255,102,0,0.95); 
+                        padding: 20px 40px; border-radius: 10px;
+                        font-size: 24px; font-weight: bold;
+                        display: none; z-index: 300; }
+        
+        .download-box { margin-top: 30px; padding: 20px;
+                        background: rgba(255,102,0,0.1);
+                        border-radius: 10px; border: 2px solid #ff6600; }
+        .download-btn { padding: 12px 30px; margin: 8px;
+                        background: linear-gradient(45deg, #138808, #44ff44);
+                        border: none; border-radius: 8px; color: #fff;
+                        font-size: 18px; font-weight: bold; cursor: pointer; }
+        .download-btn:hover { transform: scale(1.05); }
     </style>
 </head>
 <body>
-    <div class="game-container">
-        <canvas id="gameCanvas"></canvas>
+    <canvas id="gameCanvas"></canvas>
+    
+    <div class="menu" id="menu">
+        <div class="title">🇮🇳 INDIAN STREETS</div>
+        <div style="font-size: 24px; color: #ff6600; margin-bottom: 30px;">Open World Action Game</div>
+        <button class="btn" onclick="startGame()">🎮 START GAME</button>
+        <button class="btn" onclick="showCheats()">💻 CHEAT CODES</button>
         
-        <!-- Main Menu -->
-        <div class="menu" id="mainMenu">
-            <div class="game-title">🇮🇳 INDIAN STREETS</div>
-            <div class="game-subtitle">Open World Action Game</div>
-            <button class="menu-btn" onclick="startGame()">🎮 Start Game</button>
-            <button class="menu-btn" onclick="showMultiplayer()">👥 Multiplayer</button>
-            <button class="menu-btn" onclick="showCheats()">🎯 Cheat Codes</button>
-            <button class="menu-btn" onclick="showSettings()">⚙️ Settings</button>
-        </div>
-
-        <!-- HUD -->
-        <div class="hud">
-            <div class="hud-top">
-                <div class="stats">
-                    <div class="stat-bar">
-                        <span>❤️ Health:</span>
-                        <div class="bar"><div class="bar-fill health-bar" id="healthBar" style="width: 100%"></div></div>
-                    </div>
-                    <div class="stat-bar">
-                        <span>🛡️ Armor:</span>
-                        <div class="bar"><div class="bar-fill armor-bar" id="armorBar" style="width: 100%"></div></div>
-                    </div>
-                    <div class="stat-bar">
-                        <span>⚡ Stamina:</span>
-                        <div class="bar"><div class="bar-fill stamina-bar" id="staminaBar" style="width: 100%"></div></div>
-                    </div>
-                    <div style="margin-top: 10px;">
-                        <div>💰 Money: ₹<span id="money">50000</span></div>
-                        <div>⭐ Wanted: <span id="wanted">0</span></div>
-                        <div>🚗 Vehicle: <span id="currentVehicle">On Foot</span></div>
-                    </div>
-                </div>
-                <div class="minimap">
-                    <div class="player-dot"></div>
-                    <div style="position: absolute; top: 5px; left: 5px; font-size: 12px;">Mumbai</div>
-                </div>
+        <div class="download-box">
+            <h3 style="color: #ff6600; text-align: center; margin-bottom: 15px;">📥 DOWNLOAD GAME</h3>
+            <div style="text-align: center;">
+                <button class="download-btn" onclick="downloadPC()">💾 Windows/Mac/Linux</button>
+                <button class="download-btn" onclick="downloadMobile()">📱 Android APK</button>
             </div>
+            <p style="text-align: center; margin-top: 10px; color: #aaa; font-size: 14px;">
+                Size: 2.5 GB | Version: 1.0 | Updated: Dec 2025
+            </p>
         </div>
-
-        <!-- Controls -->
-        <div class="controls">
-            <div class="control-btn" onclick="movePlayer('left')">⬅️</div>
-            <div class="control-btn" onclick="movePlayer('up')">⬆️</div>
-            <div class="control-btn" onclick="movePlayer('down')">⬇️</div>
-            <div class="control-btn" onclick="movePlayer('right')">➡️</div>
-            <div class="control-btn" onclick="playerAction()">🔫</div>
-            <div class="control-btn" onclick="toggleCheatPanel()">💻</div>
-        </div>
-
-        <!-- Cheat Panel -->
-        <div class="cheat-panel" id="cheatPanel">
-            <h2 style="color: #ff6600; margin-bottom: 20px;">🎯 Cheat Codes</h2>
-            <input type="text" class="cheat-input" id="cheatInput" placeholder="Enter cheat code..." onkeypress="handleCheatInput(event)">
-            <div class="cheat-list">
-                <div class="cheat-item" onclick="activateCheat('PAISA')">
-                    <div class="cheat-code">PAISA</div>
-                    <div>Get ₹1,00,000</div>
-                </div>
-                <div class="cheat-item" onclick="activateCheat('TANDRUST')">
-                    <div class="cheat-code">TANDRUST</div>
-                    <div>Full Health & Armor</div>
-                </div>
-                <div class="cheat-item" onclick="activateCheat('HATHIYAR')">
-                    <div class="cheat-code">HATHIYAR</div>
-                    <div>All Weapons</div>
-                </div>
-                <div class="cheat-item" onclick="activateCheat('POLICE')">
-                    <div class="cheat-code">POLICE</div>
-                    <div>Clear Wanted Level</div>
-                </div>
-                <div class="cheat-item" onclick="activateCheat('BULLET')">
-                    <div class="cheat-code">BULLET</div>
-                    <div>Spawn Royal Enfield</div>
-                </div>
-                <div class="cheat-item" onclick="activateCheat('SCORPIO')">
-                    <div class="cheat-code">SCORPIO</div>
-                    <div>Spawn Mahindra Scorpio</div>
-                </div>
-                <div class="cheat-item" onclick="activateCheat('FORTUNER')">
-                    <div class="cheat-code">FORTUNER</div>
-                    <div>Spawn Toyota Fortuner</div>
-                </div>
-                <div class="cheat-item" onclick="activateCheat('RICKSHAW')">
-                    <div class="cheat-code">RICKSHAW</div>
-                    <div>Spawn Auto Rickshaw</div>
-                </div>
-                <div class="cheat-item" onclick="activateCheat('TEZRAFTAAR')">
-                    <div class="cheat-code">TEZRAFTAAR</div>
-                    <div>Super Speed</div>
-                </div>
-                <div class="cheat-item" onclick="activateCheat('UDAAN')">
-                    <div class="cheat-code">UDAAN</div>
-                    <div>Flying Cars</div>
-                </div>
-                <div class="cheat-item" onclick="activateCheat('BARISH')">
-                    <div class="cheat-code">BARISH</div>
-                    <div>Rainy Weather</div>
-                </div>
-                <div class="cheat-item" onclick="activateCheat('DHOOP')">
-                    <div class="cheat-code">DHOOP</div>
-                    <div>Sunny Weather</div>
-                </div>
-            </div>
-            <button class="menu-btn" style="margin-top: 20px; width: 100%;" onclick="toggleCheatPanel()">Close</button>
-        </div>
-
-        <!-- Vehicle Selector -->
-        <div class="vehicle-selector">
-            <h3 style="color: #ff6600; margin-bottom: 10px;">🚗 Vehicles</h3>
-            <button class="vehicle-btn" onclick="spawnVehicle('bike')">🏍️ Royal Enfield</button>
-            <button class="vehicle-btn" onclick="spawnVehicle('car')">🚗 Maruti Swift</button>
-            <button class="vehicle-btn" onclick="spawnVehicle('suv')">🚙 Mahindra Scorpio</button>
-            <button class="vehicle-btn" onclick="spawnVehicle('rickshaw')">🛺 Auto Rickshaw</button>
-            <button class="vehicle-btn" onclick="spawnVehicle('truck')">🚚 Tata Truck</button>
-        </div>
-
-        <!-- Multiplayer Panel -->
-        <div class="multiplayer-panel">
-            <h3 style="color: #ff6600;">👥 Online Players (3)</h3>
-            <div class="player-list">
-                <div class="player-item">
-                    <span>🎮 Raj_Mumbai</span>
-                    <button class="voice-btn" onclick="toggleVoice(this)">🎤 Call</button>
-                </div>
-                <div class="player-item">
-                    <span>🎮 Priya_Delhi</span>
-                    <button class="voice-btn" onclick="toggleVoice(this)">🎤 Call</button>
-                </div>
-                <div class="player-item">
-                    <span>🎮 Arjun_Bangalore</span>
-                    <button class="voice-btn" onclick="toggleVoice(this)">🎤 Call</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Chat Box -->
-        <div class="chat-box">
-            <div class="chat-messages" id="chatMessages">
-                <div class="chat-message"><strong>Raj_Mumbai:</strong> Koi mission karna hai?</div>
-                <div class="chat-message"><strong>Priya_Delhi:</strong> Haan chalo!</div>
-                <div class="chat-message"><strong>System:</strong> Welcome to Indian Streets!</div>
-            </div>
-            <input type="text" class="chat-input" placeholder="Type message... (Press Enter)" onkeypress="sendMessage(event)">
-        </div>
-
-        <!-- Mission Panel -->
-        <div class="mission-panel">
-            <h3 style="color: #ff6600; margin-bottom: 10px;">📋 Active Missions</h3>
-            <div class="mission-item">
-                <strong>Mumbai Delivery</strong>
-                <div style="font-size: 12px; margin-top: 5px;">Deliver package to Colaba</div>
-                <div style="color: #44ff44; margin-top: 5px;">Reward: ₹5,000</div>
-            </div>
-            <div class="mission-item">
-                <strong>Street Race</strong>
-                <div style="font-size: 12px; margin-top: 5px;">Win the Marine Drive race</div>
-                <div style="color: #44ff44; margin-top: 5px;">Reward: ₹10,000</div>
-            </div>
-        </div>
-
-        <!-- Notification -->
-        <div class="notification" id="notification"></div>
     </div>
-
+    
+    <div class="hud" id="hud">
+        <div>❤️ Health: <div class="bar"><div class="bar-fill health" id="health" style="width:100%"></div></div></div>
+        <div>🛡️ Armor: <div class="bar"><div class="bar-fill armor" id="armor" style="width:100%"></div></div></div>
+        <div style="margin-top: 10px;">💰 ₹<span id="money">50000</span></div>
+        <div>⭐ Wanted: <span id="wanted">0</span></div>
+        <div>🚗 <span id="vehicle">On Foot</span></div>
+    </div>
+    
+    <div class="controls" id="controls">
+        <div class="control-btn" id="left">⬅️</div>
+        <div class="control-btn" id="up">⬆️</div>
+        <div class="control-btn" id="down">⬇️</div>
+        <div class="control-btn" id="right">➡️</div>
+        <div class="control-btn" onclick="action()">🔫</div>
+        <div class="control-btn" onclick="toggleCheats()">💻</div>
+    </div>
+    
+    <div class="cheat-panel" id="cheats">
+        <h2 style="color: #ff6600; text-align: center; margin-bottom: 15px;">💻 CHEAT CODES</h2>
+        <div class="cheat-grid">
+            <div class="cheat-item" onclick="cheat('PAISA')">
+                <div class="cheat-code">PAISA</div><div>₹1,00,000</div>
+            </div>
+            <div class="cheat-item" onclick="cheat('TANDRUST')">
+                <div class="cheat-code">TANDRUST</div><div>Full Health</div>
+            </div>
+            <div class="cheat-item" onclick="cheat('HATHIYAR')">
+                <div class="cheat-code">HATHIYAR</div><div>All Weapons</div>
+            </div>
+            <div class="cheat-item" onclick="cheat('POLICE')">
+                <div class="cheat-code">POLICE</div><div>Clear Wanted</div>
+            </div>
+            <div class="cheat-item" onclick="cheat('BULLET')">
+                <div class="cheat-code">BULLET</div><div>Spawn Bike</div>
+            </div>
+            <div class="cheat-item" onclick="cheat('SCORPIO')">
+                <div class="cheat-code">SCORPIO</div><div>Spawn SUV</div>
+            </div>
+            <div class="cheat-item" onclick="cheat('RICKSHAW')">
+                <div class="cheat-code">RICKSHAW</div><div>Spawn Auto</div>
+            </div>
+            <div class="cheat-item" onclick="cheat('TEZRAFTAAR')">
+                <div class="cheat-code">TEZRAFTAAR</div><div>Super Speed</div>
+            </div>
+        </div>
+        <button class="btn" style="margin-top: 20px; width: 100%;" onclick="toggleCheats()">CLOSE</button>
+    </div>
+    
+    <div class="notification" id="notif"></div>
+    
     <script>
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
-        
-        let gameState = {
-            health: 100,
-            armor: 100,
-            stamina: 100,
-            money: 50000,
-            wanted: 0,
-            vehicle: 'On Foot',
-            playerX: 400,
-            playerY: 300,
-            playerSpeed: 5,
-            buildings: [],
-            vehicles: [],
-            npcs: []
+        let running = false;
+        let state = {
+            health: 100, armor: 100, money: 50000, wanted: 0,
+            vehicle: 'On Foot', x: 0, y: 0, speed: 5,
+            buildings: [], vehicles: [], npcs: [], keys: {}
         };
-
-        function resizeCanvas() {
+        
+        function resize() {
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
+            state.x = canvas.width / 2;
+            state.y = canvas.height / 2;
         }
-
-        window.addEventListener('resize', resizeCanvas);
-        resizeCanvas();
-
+        window.addEventListener('resize', resize);
+        resize();
+        
         function startGame() {
-            document.getElementById('mainMenu').classList.add('hidden');
-            initGame();
-            gameLoop();
+            document.getElementById('menu').classList.add('hidden');
+            document.getElementById('hud').style.display = 'block';
+            document.getElementById('controls').style.display = 'flex';
+            running = true;
+            init();
+            loop();
+            notify('🎮 Game Started!');
         }
-
-        function initGame() {
-            // Generate Indian city buildings
-            for (let i = 0; i < 20; i++) {
-                gameState.buildings.push({
-                    x: Math.random() * canvas.width,
-                    y: Math.random() * canvas.height,
-                    width: 80 + Math.random() * 100,
-                    height: 100 + Math.random() * 200,
-                    color: ['#8B4513', '#A0522D', '#CD853F', '#DEB887'][Math.floor(Math.random() * 4)]
+        
+        function init() {
+            for (let i = 0; i < 25; i++) {
+                state.buildings.push({
+                    x: Math.random() * 2000 - 1000,
+                    y: Math.random() * 2000 - 1000,
+                    w: 60 + Math.random() * 100,
+                    h: 80 + Math.random() * 200,
+                    c: ['#8B4513', '#A0522D', '#CD853F'][Math.floor(Math.random() * 3)]
                 });
             }
-
-            // Add Indian vehicles
-            const indianVehicles = ['🏍️', '🚗', '🚙', '🛺', '🚚'];
-            for (let i = 0; i < 10; i++) {
-                gameState.vehicles.push({
-                    x: Math.random() * canvas.width,
-                    y: Math.random() * canvas.height,
-                    icon: indianVehicles[Math.floor(Math.random() * indianVehicles.length)],
-                    speed: 2 + Math.random() * 3
+            const icons = ['🏍️', '🚗', '🚙', '🛺'];
+            for (let i = 0; i < 12; i++) {
+                state.vehicles.push({
+                    x: Math.random() * 1500 - 750,
+                    y: Math.random() * 1500 - 750,
+                    icon: icons[Math.floor(Math.random() * icons.length)],
+                    dx: (Math.random() - 0.5) * 3,
+                    dy: (Math.random() - 0.5) * 3
                 });
             }
-
-            // Add NPCs
             for (let i = 0; i < 15; i++) {
-                gameState.npcs.push({
-                    x: Math.random() * canvas.width,
-                    y: Math.random() * canvas.height,
-                    icon: '🚶'
+                state.npcs.push({
+                    x: Math.random() * 1500 - 750,
+                    y: Math.random() * 1500 - 750,
+                    dx: (Math.random() - 0.5) * 1.5,
+                    dy: (Math.random() - 0.5) * 1.5
                 });
             }
         }
-
-        function gameLoop() {
+        
+        function loop() {
+            if (!running) return;
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             
-            // Draw sky gradient
-            const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
-            gradient.addColorStop(0, '#87CEEB');
-            gradient.addColorStop(0.5, '#98D8C8');
-            gradient.addColorStop(1, '#6B8E23');
-            ctx.fillStyle = gradient;
+            const grad = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            grad.addColorStop(0, '#87CEEB');
+            grad.addColorStop(0.7, '#98D8C8');
+            grad.addColorStop(1, '#6B8E23');
+            ctx.fillStyle = grad;
             ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-            // Draw roads
+            
             ctx.fillStyle = '#333';
-            for (let i = 0; i < canvas.width; i += 200) {
-                ctx.fillRect(i, 0, 60, canvas.height);
+            for (let i = -canvas.width; i < canvas.width * 2; i += 120) {
+                ctx.fillRect(i - state.x % 120, 0, 40, canvas.height);
             }
-            for (let i = 0; i < canvas.height; i += 200) {
-                ctx.fillRect(0, i, canvas.width, 60);
+            for (let i = -canvas.height; i < canvas.height * 2; i += 120) {
+                ctx.fillRect(0, i - state.y % 120, canvas.width, 40);
             }
-
-            // Draw road markings
-            ctx.strokeStyle = '#fff';
-            ctx.lineWidth = 3;
-            ctx.setLineDash([20, 20]);
-            for (let i = 0; i < canvas.width; i += 200) {
-                ctx.beginPath();
-                ctx.moveTo(i + 30, 0);
-                ctx.lineTo(i + 30, canvas.height);
-                ctx.stroke();
-            }
-
-            // Draw buildings
-            gameState.buildings.forEach(building => {
-                ctx.fillStyle = building.color;
-                ctx.fillRect(building.x, building.y, building.width, building.height);
-                ctx.strokeStyle = '#000';
-                ctx.lineWidth = 2;
-                ctx.strokeRect(building.x, building.y, building.width, building.height);
-                
-                // Windows
-                ctx.fillStyle = '#FFD700';
-                for (let i = 0; i < building.height; i += 30) {
-                    for (let j = 0; j < building.width; j += 25) {
-                        ctx.fillRect(building.x + j + 5, building.y + i + 5, 15, 20);
+            
+            state.buildings.forEach(b => {
+                const sx = b.x - state.x + canvas.width / 2;
+                const sy = b.y - state.y + canvas.height / 2;
+                if (sx > -200 && sx < canvas.width + 200 && sy > -300 && sy < canvas.height + 300) {
+                    ctx.fillStyle = b.c;
+                    ctx.fillRect(sx, sy, b.w, b.h);
+                    ctx.strokeStyle = '#000';
+                    ctx.lineWidth = 2;
+                    ctx.strokeRect(sx, sy, b.w, b.h);
+                    ctx.fillStyle = '#FFD700';
+                    for (let i = 0; i < b.h; i += 20) {
+                        for (let j = 0; j < b.w; j += 18) {
+                            if (Math.random() > 0.3) ctx.fillRect(sx + j + 2, sy + i + 2, 10, 14);
+                        }
                     }
                 }
             });
-
-            // Draw vehicles
-            ctx.font = '30px Arial';
-            gameState.vehicles.forEach(vehicle => {
-                ctx.fillText(vehicle.icon, vehicle.x, vehicle.y);
-                vehicle.x += vehicle.speed;
-                if (vehicle.x > canvas.width) vehicle.x = -30;
-            });
-
-            // Draw NPCs
-            gameState.npcs.forEach(npc => {
-                ctx.fillText(npc.icon, npc.x, npc.y);
-            });
-
-            // Draw player
-            ctx.font = '40px Arial';
-            ctx.fillText('🧍', gameState.playerX, gameState.playerY);
-
-            requestAnimationFrame(gameLoop);
-        }
-
-        function movePlayer(direction) {
-            const speed = gameState.playerSpeed;
-            switch(direction) {
-                case 'up': gameState.playerY -= speed; break;
-                case 'down': gameState.playerY += speed; break;
-                case 'left': gameState.playerX -= speed; break;
-                case 'right': gameState.playerX += speed; break;
-            }
             
-            // Boundary check
-            gameState.playerX = Math.max(0, Math.min(canvas.width - 40, gameState.playerX));
-            gameState.playerY = Math.max(40, Math.min(canvas.height, gameState.playerY));
+            ctx.font = '28px Arial';
+            state.vehicles.forEach(v => {
+                v.x += v.dx; v.y += v.dy;
+                const sx = v.x - state.x + canvas.width / 2;
+                const sy = v.y - state.y + canvas.height / 2;
+                if (sx > -50 && sx < canvas.width + 50 && sy > -50 && sy < canvas.height + 50) {
+                    ctx.fillText(v.icon, sx, sy);
+                }
+            });
+            
+            ctx.font = '24px Arial';
+            state.npcs.forEach(n => {
+                n.x += n.dx; n.y += n.dy;
+                const sx = n.x - state.x + canvas.width / 2;
+                const sy = n.y - state.y + canvas.height / 2;
+                if (sx > -50 && sx < canvas.width + 50 && sy > -50 && sy < canvas.height + 50) {
+                    ctx.fillText('🚶', sx, sy);
+                }
+            });
+            
+            ctx.font = 'bold 40px Arial';
+            ctx.fillText('🧍', canvas.width / 2 - 15, canvas.height / 2 + 10);
+            
+            if (state.keys['ArrowUp'] || state.keys['w']) state.y -= state.speed;
+            if (state.keys['ArrowDown'] || state.keys['s']) state.y += state.speed;
+            if (state.keys['ArrowLeft'] || state.keys['a']) state.x -= state.speed;
+            if (state.keys['ArrowRight'] || state.keys['d']) state.x += state.speed;
+            
+            requestAnimationFrame(loop);
         }
-
-        // Keyboard controls
-        document.addEventListener('keydown', (e) => {
-            switch(e.key) {
-                case 'ArrowUp': case 'w': movePlayer('up'); break;
-                case 'ArrowDown': case 's': movePlayer('down'); break;
-                case 'ArrowLeft': case 'a': movePlayer('left'); break;
-                case 'ArrowRight': case 'd': movePlayer('right'); break;
-                case ' ': playerAction(); break;
-                case 'c': toggleCheatPanel(); break;
-            }
+        
+        document.addEventListener('keydown', e => {
+            state.keys[e.key] = true;
+            if (e.key === ' ') action();
+            if (e.key === 'c') toggleCheats();
         });
-
-        function playerAction() {
-            showNotification('🔫 Action Performed!');
-        }
-
-        function toggleCheatPanel() {
-            document.getElementById('cheatPanel').classList.toggle('active');
-        }
-
-        function activateCheat(code) {
-            document.getElementById('cheatInput').value = code;
-            handleCheat(code);
-        }
-
-        function handleCheatInput(event) {
-            if (event.key === 'Enter') {
-                const code = event.target.value.toUpperCase();
-                handleCheat(code);
-                event.target.value = '';
-            }
-        }
-
-        function handleCheat(code) {
+        document.addEventListener('keyup', e => state.keys[e.key] = false);
+        
+        ['left', 'right', 'up', 'down'].forEach(dir => {
+            const btn = document.getElementById(dir);
+            btn.addEventListener('mousedown', () => state.keys['Arrow' + dir.charAt(0).toUpperCase() + dir.slice(1)] = true);
+            btn.addEventListener('mouseup', () => state.keys['Arrow' + dir.charAt(0).toUpperCase() + dir.slice(1)] = false);
+            btn.addEventListener('touchstart', e => { e.preventDefault(); state.keys['Arrow' + dir.charAt(0).toUpperCase() + dir.slice(1)] = true; });
+            btn.addEventListener('touchend', () => state.keys['Arrow' + dir.charAt(0).toUpperCase() + dir.slice(1)] = false);
+        });
+        
+        function action() { notify('🔫 Action!'); }
+        function toggleCheats() { document.getElementById('cheats').classList.toggle('active'); }
+        function showCheats() { toggleCheats(); }
+        
+        function cheat(code) {
             switch(code) {
-                case 'PAISA':
-                    gameState.money += 100000;
-                    updateMoney();
-                    showNotification('💰 ₹1,00,000 Added!');
-                    break;
-                case 'TANDRUST':
-                    gameState.health = 100;
-                    gameState.armor = 100;
-                    updateStats();
-                    showNotification('❤️ Health & Armor Restored!');
-                    break;
-                case 'HATHIYAR':
-                    showNotification('🔫 All Weapons Unlocked!');
-                    break;
-                case 'POLICE':
-                    gameState.wanted = 0;
-                    updateWanted();
-                    showNotification('👮 Wanted Level Cleared!');
-                    break;
-                case 'BULLET':
-                case 'SCORPIO':
-                case 'FORTUNER':
-                case 'RICKSHAW':
-                    gameState.vehicle = code;
-                    updateVehicle();
-                    showNotification('🚗 Vehicle Spawned!');
-                    break;
-                case 'TEZRAFTAAR':
-                    gameState.playerSpeed = 15;
-                    showNotification('⚡ Super Speed Activated!');
-                    break;
-                case 'UDAAN':
-                    showNotification('✈️ Flying Mode Activated!');
-                    break;
-                case 'BARISH':
-                    showNotification('🌧️ Rainy Weather!');
-                    break;
-                case 'DHOOP':
-                    showNotification('☀️ Sunny Weather!');
-                    break;
-                default:
-                    showNotification('❌ Invalid Cheat Code!');
+                case 'PAISA': state.money += 100000; update(); notify('💰 ₹1,00,000!'); break;
+                case 'TANDRUST': state.health = 100; state.armor = 100; update(); notify('❤️ Full Health!'); break;
+                case 'HATHIYAR': notify('🔫 All Weapons!'); break;
+                case 'POLICE': state.wanted = 0; update(); notify('👮 Wanted Cleared!'); break;
+                case 'BULLET': state.vehicle = 'Royal Enfield 🏍️'; state.speed = 10; update(); notify('🏍️ Bike Spawned!'); break;
+                case 'SCORPIO': state.vehicle = 'Scorpio 🚙'; state.speed = 8; update(); notify('🚙 SUV Spawned!'); break;
+                case 'RICKSHAW': state.vehicle = 'Rickshaw 🛺'; state.speed = 6; update(); notify('🛺 Auto Spawned!'); break;
+                case 'TEZRAFTAAR': state.speed = 15; notify('⚡ Super Speed!'); break;
             }
+            toggleCheats();
         }
-
-        function spawnVehicle(type) {
-            const vehicles = {
-                bike: 'Royal Enfield',
-                car: 'Maruti Swift',
-                suv: 'Mahindra Scorpio',
-                rickshaw: 'Auto Rickshaw',
-                truck: 'Tata Truck'
-            };
-            gameState.vehicle = vehicles[type];
-            updateVehicle();
-            showNotification(`🚗 ${vehicles[type]} Spawned!`);
+        
+        function update() {
+            document.getElementById('health').style.width = state.health + '%';
+            document.getElementById('armor').style.width = state.armor + '%';
+            document.getElementById('money').textContent = state.money.toLocaleString('en-IN');
+            document.getElementById('wanted').textContent = state.wanted;
+            document.getElementById('vehicle').textContent = state.vehicle;
         }
-
-        function updateStats() {
-            document.getElementById('healthBar').style.width = gameState.health + '%';
-            document.getElementById('armorBar').style.width = gameState.armor + '%';
-            document.getElementById('staminaBar').style.width = gameState.stamina + '%';
+        
+        function notify(msg) {
+            const n = document.getElementById('notif');
+            n.textContent = msg;
+            n.style.display = 'block';
+            setTimeout(() => n.style.display = 'none', 2000);
         }
-
-        function updateMoney() {
-            document.getElementById('money').textContent = gameState.money.toLocaleString('en-IN');
+        
+        function downloadPC() {
+            notify('📥 Download Starting...');
+            setTimeout(() => alert('🎮 INDIAN STREETS - PC Version\n\n✅ Features:\n• Full HD Graphics\n• 50+ Missions\n• Multiplayer\n• Voice Chat\n• All Indian Cities\n• 100+ Vehicles\n\nSize: 2.5 GB\nPlatform: Windows/Mac/Linux\n\nDemo version - Full game coming soon!'), 1000);
         }
-
-        function updateWanted() {
-            document.getElementById('wanted').textContent = gameState.wanted;
+        
+        function downloadMobile() {
+            notify('📱 Android Download...');
+            setTimeout(() => alert('📱 INDIAN STREETS - Android APK\n\n✅ Features:\n• Mobile Optimized\n• Touch Controls\n• Offline Mode\n• Cloud Save\n\nSize: 1.8 GB\nRequires: Android 8.0+\n\nDemo version - Full game coming soon!'), 1000);
         }
-
-        function updateVehicle() {
-            document.getElementById('currentVehicle').textContent = gameState.vehicle;
-        }
-
-        function showNotification(message) {
-            const notif = document.getElementById('notification');
-            notif.textContent = message;
-            notif.style.display = 'block';
-            setTimeout(() => {
-                notif.style.display = 'none';
-            }, 2000);
-        }
-
-        function toggleVoice(btn) {
-            btn.classList.toggle('active');
-            if (btn.classList.contains('active')) {
-                btn.textContent = '🔴 End';
-                showNotification('📞 Voice Call Started!');
-            } else {
-                btn.textContent = '🎤 Call';
-                showNotification('📞 Call Ended!');
-            }
-        }
-
-        function sendMessage(event) {
-            if (event.key === 'Enter' && event.target.value.trim()) {
-                const messagesDiv = document.getElementById('chatMessages');
-                const newMessage = document.createElement('div');
-                newMessage.className = 'chat-message';
-                newMessage.innerHTML = `<strong>You:</strong> ${event.target.value}`;
-                messagesDiv.appendChild(newMessage);
-                messagesDiv.scrollTop = messagesDiv.scrollHeight;
-                event.target.value = '';
-            }
-        }
-
-        function showMultiplayer() {
-            showNotification('👥 Connecting to multiplayer servers...');
-            setTimeout(() => {
-                showNotification('✅ Connected! 3 players online');
-                startGame();
-            }, 1500);
-        }
-
-        function showCheats() {
-            toggleCheatPanel();
-        }
-
-        function showSettings() {
-            showNotification('⚙️ Settings panel coming soon!');
-        }
-
-        // Auto-update stamina
-        setInterval(() => {
-            if (gameState.stamina < 100) {
-                gameState.stamina = Math.min(100, gameState.stamina + 1);
-                updateStats();
-            }
-        }, 1000);
     </script>
 </body>
 </html>
